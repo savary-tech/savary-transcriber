@@ -20,7 +20,7 @@ That's it. The script installs Python packages automatically on first run.
 ## Usage
 
 ```bash
-python3 transcriber.py <audio_file> [options]
+python3 transcriber.py
 ```
 
 ### Basic examples
