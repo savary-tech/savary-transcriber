@@ -102,7 +102,7 @@ KEY_CTRL_C = "\x03"
 
 def banner():
     print(clr("  ╔══════════════════════════════════════╗", CYAN))
-    print(clr("  ║  ", CYAN) + clr("🎙  Audio Transcriber", BOLD + WHITE) + clr("             ║", CYAN))
+    print(clr("  ║  ", CYAN) + clr("🎙  Audio Transcriber", BOLD + WHITE) + clr("                ║", CYAN))
     print(clr("  ║  ", CYAN) + clr("   Powered by OpenAI Whisper", DIM)   + clr("        ║", CYAN))
     print(clr("  ╚══════════════════════════════════════╝", CYAN))
 
