@@ -6,11 +6,18 @@ Just run:  python3 transcriber.py
 
 import sys
 import os
+import platform
 import subprocess
 import time
 import glob
 import tty
 import termios
+
+# ── Platform detection ────────────────────────────────────────────────────────
+
+IS_MAC   = platform.system() == "Darwin"
+IS_LINUX = platform.system() == "Linux"
+PY_VER   = sys.version_info
 
 # ── Terminal colors & styles ──────────────────────────────────────────────────
 
@@ -31,7 +38,34 @@ def clr(text, *codes):
 def clear():
     os.system("clear")
 
+# ── Python version guard ──────────────────────────────────────────────────────
+
+def check_python_version():
+    """Warn if Python >= 3.13 where torch support may be missing."""
+    if PY_VER >= (3, 13):
+        clear()
+        banner()
+        print(clr(f"\n  ⚠  Python {PY_VER.major}.{PY_VER.minor} detected\n", YELLOW + BOLD))
+        print("  PyTorch (required by Whisper) does not yet support Python 3.13+.")
+        print("  Please install Python 3.11 or 3.12 and re-run with that version.\n")
+        if IS_MAC:
+            print(clr("  On Mac:", BOLD + WHITE))
+            print("    brew install python@3.11")
+            print("    python3.11 transcriber.py\n")
+        else:
+            print(clr("  On Linux:", BOLD + WHITE))
+            print("    sudo apt install python3.11")
+            print("    python3.11 transcriber.py\n")
+        sys.exit(1)
+
 # ── Dependency installer ──────────────────────────────────────────────────────
+
+def pip_install(package):
+    """Install a pip package, using --break-system-packages only on Linux."""
+    cmd = [sys.executable, "-m", "pip", "install", package, "-q"]
+    if IS_LINUX:
+        cmd.append("--break-system-packages")
+    subprocess.check_call(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def check_and_install(package, import_name=None):
     import_name = import_name or package
@@ -39,15 +73,12 @@ def check_and_install(package, import_name=None):
         __import__(import_name)
     except ImportError:
         print(clr(f"  Installing {package}...", YELLOW))
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", package,
-             "--break-system-packages", "-q"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
+        pip_install(package)
 
 def ensure_dependencies():
     clear()
     banner()
+    check_python_version()
     print(clr("\n  Checking dependencies...\n", DIM))
     check_and_install("openai-whisper", "whisper")
     check_and_install("torch")
@@ -102,7 +133,7 @@ KEY_CTRL_C = "\x03"
 
 def banner():
     print(clr("  ╔══════════════════════════════════════╗", CYAN))
-    print(clr("  ║  ", CYAN) + clr("🎙  Audio Transcriber", BOLD + WHITE) + clr("                ║", CYAN))
+    print(clr("  ║  ", CYAN) + clr("🎙  Audio Transcriber", BOLD + WHITE) + clr("             ║", CYAN))
     print(clr("  ║  ", CYAN) + clr("   Powered by OpenAI Whisper", DIM)   + clr("        ║", CYAN))
     print(clr("  ╚══════════════════════════════════════╝", CYAN))
 
