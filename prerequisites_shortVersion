@@ -1,0 +1,11 @@
+prerequisites
+
+1. Install ffmpeg
+sudo apt install ffmpeg
+
+2. Install openai-whisper to run locally
+pip install openai-whisper --break-system-packages
+OR the below if system already have a conflicting whisper package
+pip uninstall whisper -y --break-system-packages
+pip uninstall openai-whisper -y --break-system-packages
+pip install openai-whisper --break-system-packages
